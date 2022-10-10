@@ -1,9 +1,8 @@
 import 'dart:io';
 
 import 'package:advance_image_picker/advance_image_picker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class FileView extends StatefulWidget {
   FileView({super.key, required this.imgObjs});
@@ -14,28 +13,37 @@ class FileView extends StatefulWidget {
 }
 
 class _FileViewState extends State<FileView> {
+  late PageController _pageController;
+  int activePage = 0;
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.8);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: Center(
-        child: Column(
-          children: <Widget>[
-            GridView.builder(
-                shrinkWrap: true,
-                itemCount: widget.imgObjs.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, mainAxisSpacing: 2, crossAxisSpacing: 2),
-                itemBuilder: (BuildContext context, int index) {
-                  final image = widget.imgObjs[index];
-                  return Padding(
-                    padding: const EdgeInsets.all(2),
-                    child: Image.file(File(image.modifiedPath),
-                        height: 80, fit: BoxFit.cover),
-                  );
-                }),
-          ],
-        ),
+        child: PageView.builder(
+            dragStartBehavior: DragStartBehavior.down,
+            itemCount: widget.imgObjs.length,
+            pageSnapping: true,
+            controller: _pageController,
+            onPageChanged: (page) {
+              if (mounted){
+                setState(() {
+                activePage = page;
+              });
+              }
+              
+            },
+            itemBuilder: (context, pagePosition) {
+              return Container(
+                  color: Color.fromARGB(37, 22, 109, 122),
+                  margin: EdgeInsets.all(10),
+                  child: Image.file(File(widget.imgObjs[pagePosition].originalPath)));
+            }),
       ),
     );
   }
